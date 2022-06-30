@@ -8,19 +8,10 @@ from scipy.stats import mannwhitneyu #type: ignore
 from scipy.stats import kruskal #type: ignore
 
 
-from ide.core.data_sampler import DataSampler
-from ide.core.configuration import Configurable
+from aldtts.core.two_sample_test import TwoSampleTest
 
 if TYPE_CHECKING:
-    from ide.core.configuration import Configurable
-    from typing import Tuple, List
-
-@dataclass
-class TwoSampleTest(Configurable):
-    
-    def test(self, sample1: Tuple[float,...], sample2: Tuple[float,...]) -> Tuple[List[float],List[float]]:
-        ...
-
+    ...
 
 @dataclass
 class MWUTwoSampleTest(TwoSampleTest):
@@ -58,6 +49,4 @@ class KWHTwoSampleTest(TwoSampleTest):
         #U = results[:,0,:]
         #p = results[:,1,:]
         return t, p
-
-        
     

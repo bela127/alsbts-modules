@@ -1,9 +1,9 @@
 import numpy as np
 
-from ide.building_blocks.test_interpolation import KNNTestInterpolator
-from ide.modules.data_sampler import KDTreeKNNDataSampler
-from ide.building_blocks.two_sample_test import MWUTwoSampleTest
-from ide.modules.queried_data_pool import FlatQueriedDataPool
+from aldtts.modules.test_interpolation import KNNTestInterpolator
+from alts.modules.data_sampler import KDTreeKNNDataSampler
+from aldtts.modules.two_sample_test import MWUTwoSampleTest
+from alts.modules.queried_data_pool import FlatQueriedDataPool
 
 def test_uncertainty():
     dp = FlatQueriedDataPool((1,),(2,))

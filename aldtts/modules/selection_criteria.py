@@ -5,18 +5,18 @@ from typing import TYPE_CHECKING
 from dataclasses import dataclass, field
 
 import numpy as np
-from ide.core.data.data_pool import DataPool
+from alts.core.data.data_pool import DataPool
 
-from ide.core.query.selection_criteria import SelectionCriteria, NoSelectionCriteria
-from ide.building_blocks.experiment_modules import DependencyExperiment, InterventionDependencyExperiment
+from alts.core.query.selection_criteria import SelectionCriteria, NoSelectionCriteria
+from aldtts.modules.experiment_modules import DependencyExperiment, InterventionDependencyExperiment
 
 
 if TYPE_CHECKING:
     from typing import Optional
     from typing_extensions import Self #type: ignore
-    from ide.building_blocks.test_interpolation import TestInterpolator
-    from ide.building_blocks.dependency_test import DependencyTest
-    from ide.core.oracle.data_source import DataSource
+    from aldtts.modules.test_interpolation import TestInterpolator
+    from aldtts.modules.dependency_test import DependencyTest
+    from alts.core.oracle.data_source import DataSource
 
 @dataclass
 class QueryTestNoSelectionCritera(NoSelectionCriteria):

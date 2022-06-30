@@ -1,9 +1,9 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
 
-from ide.building_blocks.experiment_modules import DependencyExperiment
+from aldtts.modules.experiment_modules import DependencyExperiment
 from dataclasses import dataclass, field
-from ide.core.evaluator import LogingEvaluator, Evaluate
+from alts.core.evaluator import LogingEvaluator, Evaluate
 
 import numpy as np
 from matplotlib import pyplot as plot # type: ignore
@@ -12,9 +12,9 @@ import os
 
 if TYPE_CHECKING:
     from typing import List, Tuple
-    from ide.core.experiment import Experiment
+    from alts.core.experiment import Experiment
     from nptyping import  NDArray, Number, Shape
-    from ide.building_blocks.dependency_test import DependencyTest
+    from aldtts.modules.dependency_test import DependencyTest
 
 
 @dataclass

@@ -3,13 +3,13 @@ from typing import TYPE_CHECKING
 
 from dataclasses import dataclass
 
-from ide.core.experiment_module import ExperimentModule
+from alts.core.experiment_module import ExperimentModule
 
 if TYPE_CHECKING:
     from typing_extensions import Self #type: ignore
-    from ide.core.data_sampler import DataSampler
-    from ide.building_blocks.multi_sample_test import MultiSampleTest
-    from ide.core.query.query_sampler import QuerySampler
+    from alts.core.data_sampler import DataSampler
+    from aldtts.modules.multi_sample_test import MultiSampleTest
+    from alts.core.query.query_sampler import QuerySampler
 
 
 @dataclass

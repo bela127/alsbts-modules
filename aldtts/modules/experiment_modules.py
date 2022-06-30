@@ -3,13 +3,13 @@ from typing import TYPE_CHECKING
 
 from dataclasses import dataclass
 
-from ide.core.experiment_modules import ExperimentModules
+from alts.core.experiment_modules import ExperimentModules
 
 if TYPE_CHECKING:
-    from ide.building_blocks.test_interpolation import TestInterpolator
-    from ide.building_blocks.dependency_test import DependencyTest
-    from ide.core.data.queried_data_pool import QueriedDataPool
-    from ide.core.data.data_pool import DataPool
+    from aldtts.modules.test_interpolation import TestInterpolator
+    from aldtts.modules.dependency_test import DependencyTest
+    from alts.core.data.queried_data_pool import QueriedDataPool
+    from alts.core.data.data_pool import DataPool
 
     from typing_extensions import Self #type: ignore
 
