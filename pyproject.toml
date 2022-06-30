@@ -10,12 +10,10 @@ packages = [
 
 [tool.poetry.dependencies]
 python = ">=3.8,<3.10"
-aldtts-core = { path = "/home/bela/Cloud/code/Git/aldtts-core", develop = true }
-alts-modules = { path = "/home/bela/Cloud/code/Git/alts-modules", develop = true }
-#distribution-data-generation = { path = "/home/bela/Cloud/code/Git/distribution_data_generation", develop = true }
-#distribution-data-generation = {git = "https://github.com/bela127/distribution_data_generation.git"}
-#active-learning-ts = { path = "/home/bela/Cloud/code/Git/active_learning_ts", develop = true }
-#active-learning-ts = {git = "https://github.com/bela127/active_learning_ts.git"}
+#aldtts-core = { path = "/home/bela/Cloud/code/Git/aldtts-core", develop = true }
+#alts-modules = { path = "/home/bela/Cloud/code/Git/alts-modules", develop = true }
+alts-modules = {git = "https://github.com/bela127/alts-modules.git"}
+aldtts-core = {git = "https://github.com/bela127/aldtts-core.git"}
 libclang = "<12.0"
 coloredlogs = "^15.0.1"
 ipython = "^8.0.1"
