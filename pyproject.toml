@@ -1,27 +1,28 @@
 [tool.poetry]
-name = "aldtts-modules"
+name = "alvsts-modules"
 version = "0.2.0"
-description = "Modules for aldtts"
+description = "Modules for alvsts"
 authors = ["bela127 <bhb127@outlook.de>"]
 license = "MIT"
 packages = [
-    { include = "aldtts/modules", from = "." }
+    { include = "alvsts/modules", from = "." }
 ]
 
 [tool.poetry.dependencies]
 python = ">=3.8,<3.10"
+alts-core = { path = "/home/bela/Cloud/code/Git/alts-core", develop = true }
+#alts-core = {git = "https://github.com/bela127/alts-core.git"}
 #aldtts-core = { path = "/home/bela/Cloud/code/Git/aldtts-core", develop = true }
+#alts-modules = {git = "https://github.com/bela127/alts-modules.git"}
 #alts-modules = { path = "/home/bela/Cloud/code/Git/alts-modules", develop = true }
-alts-modules = {git = "https://github.com/bela127/alts-modules.git"}
-aldtts-core = {git = "https://github.com/bela127/aldtts-core.git"}
-libclang = "<12.0"
-coloredlogs = "^15.0.1"
-ipython = "^8.0.1"
+#aldtts-core = {git = "https://github.com/bela127/aldtts-core.git"}
 matplotlib = "^3.5.1"
-nptyping = ">=2.0.0a1"
 scikit-learn = "^1.0.2"
 numpy = "^1.22.3"
+nptyping = ">=2.0.0a1"
 scipy = "1.8"
+filterpy = "^1.4.5"
+keras = "^2.9.0"
 
 [tool.poetry.dev-dependencies]
 pytest = "^6.2.5"
