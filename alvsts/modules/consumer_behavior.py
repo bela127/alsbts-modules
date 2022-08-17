@@ -7,23 +7,25 @@ import numpy as np
 from matplotlib import pyplot as plot # type: ignore
 import os
 
+from alts.core.configuration import Configurable
+
 
 if TYPE_CHECKING:
     from typing import Tuple
     from nptyping import  NDArray, Number, Shape
 
-class ConsumerBehavior():
+class ConsumerBehavior(Configurable):
 
     def behavior(self) -> Tuple[NDArray[Number, Shape["change_times"]], NDArray[Number, Shape["kps"]]]:
         raise NotImplementedError()
 
 @dataclass
 class EquidistantTimeUniformKpBehavior(ConsumerBehavior):
-    numberOfLoadChanges = 60
-    lower_kp=0
-    uper_kp=2
-    start_time = 9
-    end_time = 599
+    numberOfLoadChanges: int = 120
+    lower_kp: int=0
+    uper_kp: int=2
+    start_time: int = 9
+    end_time: int = 599
 
     def behavior(self) -> Tuple[int, int]:
         kp = np.random.uniform(self.lower_kp, self.uper_kp, (self.numberOfLoadChanges + 1))
@@ -32,11 +34,11 @@ class EquidistantTimeUniformKpBehavior(ConsumerBehavior):
 
 @dataclass
 class RandomTimeUniformKpBehavior(ConsumerBehavior):
-    numberOfLoadChanges = 60
-    lower_kp=0
-    uper_kp=2
-    start_time = 1
-    end_time = 600
+    numberOfLoadChanges: int = 120
+    lower_kp: int=0
+    uper_kp: int=2
+    start_time: int = 1
+    end_time: int = 600
 
     def behavior(self) -> Tuple[int, int]:
         kp = np.random.uniform(self.lower_kp, self.uper_kp, (self.numberOfLoadChanges + 1))

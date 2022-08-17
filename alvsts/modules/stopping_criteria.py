@@ -14,4 +14,7 @@ if TYPE_CHECKING:
 class SimEndStoppingCriteria(StoppingCriteria):
 
     def next(self, iteration):
-        return not self.exp.oracle.data_source.exhausted
+        if self.exp.oracle.data_source.exhausted:
+            self.exp.oracle.data_source.exp_setup.stop_simulation()
+            return False
+        return True

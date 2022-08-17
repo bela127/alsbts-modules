@@ -5,40 +5,49 @@ from typing import TYPE_CHECKING
 from dataclasses import dataclass, field
 
 import numpy as np
-from alts.core.data.data_pool import DataPool
+from alts.core.query.query_pool import QueryPool
 
 from alts.core.query.selection_criteria import SelectionCriteria, NoSelectionCriteria
-#from aldtts.modules.experiment_modules import DependencyExperiment, InterventionDependencyExperiment
-
+from alsbts.core.experiment_modules import StreamExperiment
 
 if TYPE_CHECKING:
     from typing import Optional
     from typing_extensions import Self #type: ignore
-    #from aldtts.modules.test_interpolation import TestInterpolator
-    #from aldtts.modules.dependency_test import DependencyTest
     from alts.core.oracle.data_source import DataSource
+
+    from alsbts.core.estimator import Estimator
 
 
 @dataclass
-class TestSelectionCriteria(SelectionCriteria):
-    test_interpolator: Optional[TestInterpolator] = field(init=False, default=None)
-    
-    @property
-    def query_pool(self):
-        return self.test_interpolator.query_pool
+class EstimatorSelectionCriteria(SelectionCriteria):
+    estimator: Estimator = field(init=False)
 
     def __call__(self, exp_modules = None, **kwargs) -> Self:
         obj = super().__call__(exp_modules, **kwargs)
 
-        if isinstance(exp_modules, InterventionDependencyExperiment):
-            obj.test_interpolator = exp_modules.test_interpolator
+        if isinstance(exp_modules, StreamExperiment):
+            obj.estimator = exp_modules.estimator
         else:
             raise ValueError()
 
         return obj
 
+    @property
+    def query_pool(self) -> QueryPool:
+        query_pool = self.exp_modules.oracle_data_pool.copy()
+        
+        def all_queries():
+            queries = self.exp_modules.oracle_data_pool.all_queries()
+            vs_estimate = self.estimator.estimate()
+            queries = queries.copy()
+            queries[:,0] = vs_estimate
+            return queries
+        
+        query_pool.all_queries = all_queries
+        return query_pool
+
 @dataclass
-class UKFUncertaintySelectionCriteria(TestSelectionCriteria):
+class UKFUncertaintySelectionCriteria(EstimatorSelectionCriteria):
     def query(self, queries):
 
         size = queries.shape[0] // 2
@@ -55,7 +64,7 @@ class UKFUncertaintySelectionCriteria(TestSelectionCriteria):
         return scores
 
 @dataclass
-class RVSChangeSelectionCriteria(TestSelectionCriteria):
+class RVSChangeSelectionCriteria(EstimatorSelectionCriteria):
     def query(self, queries):
 
         size = queries.shape[0] // 2
@@ -72,7 +81,7 @@ class RVSChangeSelectionCriteria(TestSelectionCriteria):
         return scores
 
 @dataclass
-class FixedIntervalSelectionCriteria(SelectionCriteria):
+class FixedIntervalSelectionCriteria(EstimatorSelectionCriteria):
     time_interval: float = 10.0
 
     last_query_time: float = field(init=False, default=0)
@@ -81,10 +90,27 @@ class FixedIntervalSelectionCriteria(SelectionCriteria):
 
         time = self.exp_modules.queried_data_pool.last_results[0,0]
 
-        if self.last_query_time <= time:
-            scores = np.asarray([0, 1])
+        if time >= self.last_query_time + self.time_interval:
+            scores = np.asarray([0, 1]) #Do measure
             self.last_query_time = time
         else:
-            scores = np.asarray([1, 0])
+            scores = np.asarray([1, 0]) #Do not measure
 
         return scores
+
+@dataclass
+class ChangeSelectionCriteria(EstimatorSelectionCriteria):
+
+    def query(self, queries):
+
+        change = self.exp_modules.queried_data_pool.last_results[0,6]
+
+        if change > 0:
+            scores = np.asarray([0, 1]) #Do measure
+        else:
+            scores = np.asarray([1, 0]) #Do not measure
+
+        return scores
+
+
+

@@ -5,9 +5,12 @@ import matlab.engine
 
 class MatLabEngin:
 
-    def __init__(self):
+    def __init__(self, gui=False):
         print("starting matlab engin")
-        self.eng = matlab.engine.start_matlab()
+        if gui:
+            self.eng = matlab.engine.start_matlab(option="-desktop")
+        else:
+            self.eng = matlab.engine.start_matlab()
 
     def __enter__(self) -> MatLabEngin:
         return self.eng

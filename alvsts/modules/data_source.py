@@ -26,45 +26,53 @@ if TYPE_CHECKING:
 class VSSimulationDataSource(DataSource):
 
     query_shape: Tuple[int,...] = (2,)
-    result_shape: Tuple[int,...] = (8,)
+    result_shape: Tuple[int,...] = (9,)
 
     exp_setup: ExperimentSetup = None
 
     def query(self, queries):
-        print("query:", queries)
         estimated_vs, measure = queries[0]
 
-        self.exp_setup.simulation_step()
-        
-        voltageOutput, knewVOutput, activePowerOutput, reactivePowerOutput, timeOutput = self.exp_setup.observable_grid_quantities()
         if measure == 1:
-            vs = self.exp_setup.measure_vs()
+            self.exp_setup.trigger_vs_measurement()
         else:
-            vs = np.nan
+            self.exp_setup.continue_sim()
 
+        measurement_in_progress, measured_vs = self.exp_setup.last_vs_measurement()
         
-        rvs = self.exp_setup.estimate_rvs(timeOutput)
-        change_point = self.exp_setup.rvs_change(timeOutput)
+        timeOutput , voltageOutput, knewVOutput, activePowerOutput, reactivePowerOutput= self.exp_setup.observable_grid_quantities()
 
 
-        result = np.asarray((timeOutput[-1][0], voltageOutput[-1][0], knewVOutput[-1][0], activePowerOutput[-1][0], reactivePowerOutput[-1][0], rvs, change_point, vs[-1][0]))
-        print("result:", result)
+        vs_gt = self.exp_setup.gt_vs()
+        rvs = self.exp_setup.estimate_rvs(vs_gt, timeOutput, voltageOutput, knewVOutput, activePowerOutput, reactivePowerOutput)
+        change_point = self.exp_setup.rvs_change(vs_gt, timeOutput, voltageOutput, knewVOutput, activePowerOutput, reactivePowerOutput, rvs)
 
-        return queries, result
+
+        result = np.asarray((timeOutput, voltageOutput, knewVOutput, activePowerOutput, reactivePowerOutput, rvs, change_point, measurement_in_progress, measured_vs))
+        results = np.asarray([result])
+
+        print("VS_GT: ",vs_gt)
+        return queries, results
 
     @property
     def exhausted(self):
         return not self.exp_setup.is_running
 
+    
     @property
     def query_pool(self) -> QueryPool:
-        x_min = 1
-        x_max = 1
-        query_ranges = np.asarray(tuple((x_min, x_max) for i in range(self.query_shape[0])))
-        return QueryPool(query_count=None, query_shape=self.query_shape, query_ranges=query_ranges)
+        query_ranges = np.asarray(((np.nan, np.nan), (0, 1)))
+        query_pool = QueryPool(query_count=2, query_shape=self.query_shape, query_ranges=query_ranges)
+        query_pool.add_queries(np.asarray([[np.nan, 0],[np.nan, 1]]))
+        return query_pool
 
     @property
     def data_pool(self) -> DataPool:
         return DataPool(self.query_pool, self.result_shape)
+
+    def __call__(self, **kwargs) -> Self:
+        obj = super().__call__(**kwargs)
+        obj.exp_setup = obj.exp_setup()
+        return obj
 
     
