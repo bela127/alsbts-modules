@@ -31,12 +31,11 @@ class ExperimentSetup(Simulation):
     change_detector: ChangeDetector = None
     path: str = "./"
     model_name: str="STmodel"
-
-    last_rvs: float = 0
+    sim_stop_time: float = 600
 
     def __call__(self, **kwargs) -> Self:
          obj: ExperimentSetup = super().__call__(**kwargs)
-         obj.consumer_behavior = obj.consumer_behavior()
+         obj.consumer_behavior = obj.consumer_behavior(stop_time = obj.sim_stop_time)
          obj.rvs_estimator = obj.rvs_estimator()
          obj.change_detector = obj.change_detector()
          obj.init_simulation()
@@ -121,8 +120,8 @@ class ExperimentSetup(Simulation):
             else:
                 ts_kp[2 * i] = kp[i - 1]
         
-        kp_str = "".join(str(ts_kp))
-        change_time_str = "".join(str(ts_change_time))
+        kp_str = "".join(np.array2string(ts_kp, precision=4, suppress_small=True, separator=',',threshold=np.inf, max_line_width=np.inf))
+        change_time_str = "".join(np.array2string(ts_change_time, precision=4, suppress_small=True, separator=',',threshold=np.inf, max_line_width=np.inf))
         kpwork_test_data = ("Kpwork = timeseries2timetable(timeseries(" +kp_str + "," + change_time_str + "));").replace("\n", "")
         with open(os.path.join(self.path,"Kpwork_f.m"), "w") as f:
             f.write(kpwork_test_data)
@@ -136,8 +135,10 @@ class ExperimentSetup(Simulation):
 
         self.init_consumer_behavior()
 
+        self.eng.workspace['stop_time'] = float(self.sim_stop_time)
+
         # Load the model
-        self.eng.eval(f"model = '{model_path}'", nargout=0)
+        self.eng.eval(f"model = '{model_path}';", nargout=0)
         self.eng.eval("load_system(model)", nargout=0)
 
         # Start, simulation
@@ -149,10 +150,11 @@ class ExperimentSetup(Simulation):
         )
 
         # Simulation immediately pauses its self after first time step
-        # continue sim for one more steps so that transient process is over and sim is stable
+        # continue sim for a few more steps so that transient process is over and sim is stable
+        # skip n sim steps
+        for i in range(25):
+            self.continue_sim()
 
-        self.continue_sim()
-        self.continue_sim()
     
 
     def stop_simulation(self):
