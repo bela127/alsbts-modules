@@ -10,12 +10,10 @@ packages = [
 
 [tool.poetry.dependencies]
 python = ">=3.8,<3.10"
-alts-core = { path = "/home/bela/Cloud/code/Git/alts-core", develop = true }
-#alts-core = {git = "https://github.com/bela127/alts-core.git"}
-alsbts-core = { path = "/home/bela/Cloud/code/Git/alsbts-core", develop = true }
-#alsbts-core = {git = "https://github.com/bela127/alsbts-core.git"}
-alts-modules = { path = "/home/bela/Cloud/code/Git/alts-modules", develop = true }
-#alts-modules = {git = "https://github.com/bela127/alts-modules.git"}
+#alsbts-core = { path = "/home/bela/Cloud/code/Git/alsbts-core", develop = true }
+alsbts-core = {git = "https://github.com/bela127/alsbts-core.git"}
+#alts-modules = { path = "/home/bela/Cloud/code/Git/alts-modules", develop = true }
+alts-modules = {git = "https://github.com/bela127/alts-modules.git"}
 paramz = {git = "https://github.com/bela127/paramz.git"}
 GPy = {git = "https://github.com/bela127/GPy.git"}
 
