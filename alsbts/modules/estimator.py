@@ -31,12 +31,13 @@ class PassThroughEstimator(Estimator):
         if self.exp_modules.result_data_pool.last_results.shape[0] > 0:
             estimation = self.exp_modules.result_data_pool.last_results[-1][..., None]
         else:
-            estimation = np.zeros((queries.shape[0],1))
+            estimation = np.zeros((queries.shape[0],2))
         return estimation
 
 
 @dataclass
 class GPEstimator(Estimator):
+    use_label_as_estimate: bool = False
     length_scale: float = 0.5
     noise:float = 0.00#1
 
@@ -62,18 +63,17 @@ class GPEstimator(Estimator):
 
     def estimate(self, times, queries, vars) -> NDArray[Shape["query_nr, ... result_dim"], Number]:
                 
-        if self.newly_trained:
+        if self.use_label_as_estimate and self.newly_trained:
             self.newly_trained = False
             last_results = self.exp_modules.result_data_pool.last_results
             estimation = last_results
-            return estimation
+            var = np.zeros((queries.shape[0],1))
+            est_and_var = np.concatenate((estimation, var), axis=1)
+            return est_and_var
             
-        times = self.exp_modules.stream_data_pool.last_queries
-        vars = self.exp_modules.stream_data_pool.last_results
         queries = np.concatenate((times, vars), axis=1)
-        queries, estimation, estimation_cov = self.query(queries)
-        
-        return estimation
+        queries, est_and_var = self.query(queries)
+        return est_and_var
     
     def apply_constrains(self):
         self.gaussian_process.rbf.lengthscale.fix()
@@ -87,7 +87,7 @@ class GPEstimator(Estimator):
         else:
             estimation = np.zeros((queries.shape[0],1))
             estimation_cov = np.ones((queries.shape[0],1)) * 100
-        return queries, estimation, estimation_cov
+        return queries, np.concatenate((estimation, estimation_cov), axis=1)
 
 @dataclass
 class BrownGPEstimator(GPEstimator):
@@ -142,7 +142,7 @@ class IntBrownGPEstimator(GPEstimator):
         else:
             estimation = np.zeros((queries.shape[0],1))
             estimation_cov = np.ones((queries.shape[0],1)) * 100
-        return queries, estimation, estimation_cov
+        return queries, np.concatenate((estimation, estimation_cov), axis=1)
 
     def apply_constrains(self):
         self.gaussian_process.Gaussian_noise.variance.fix()

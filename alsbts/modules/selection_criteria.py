@@ -92,9 +92,9 @@ class STDSelectionCriteria(EstimatorSelectionCriteria):
 
     def query(self, queries):
 
-        queries, result, std = self.exp_modules.estimator.query(queries)
+        queries, est_var = self.exp_modules.estimator.query(queries)
 
-        scores = std - self.std_threshold
+        scores = est_var[:,1:] - self.std_threshold
 
         return queries, scores
 
