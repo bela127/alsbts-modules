@@ -20,7 +20,6 @@ class NoisyChangeDetector(ChangeDetector):
     change_offset_std: float = 5
     wrong_detection_ratio: float = 0.005
     missed_detection_ratio: float = 0.025
-    time_step: float = 1 #0.05
 
     gt_change = False
     last_value = 0
