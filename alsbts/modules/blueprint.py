@@ -15,6 +15,7 @@ from alts.core.experiment_modules import ExperimentModules
 from alts.modules.query.query_optimizer import NoQueryOptimizer
 from alts.modules.evaluator import PrintExpTimeEvaluator
 
+from alts.core.data.data_pools import SPRDataPools
 from alts.modules.queried_data_pool import FlatQueriedDataPool
 from alts.modules.query.query_sampler import FixedQuerySampler
 from alts.core.blueprint import Blueprint
@@ -22,6 +23,8 @@ from alts.modules.evaluator import PrintExpTimeEvaluator
 
 from alts.modules.data_process.time_source import IterationTimeSource
 from alts.modules.data_process.time_behavior import DataSourceTimeBehavior
+
+from alts.core.oracle.oracles import POracles
 from alts.modules.oracle.query_queue import FCFSQueryQueue
 from alts.modules.data_process.process import DataSourceProcess
 from alts.modules.stopping_criteria import TimeStoppingCriteria
@@ -55,7 +58,6 @@ from alts.modules.query.selection_criteria import AllSelectionCriteria
 
 if TYPE_CHECKING:
     from typing import Iterable, Optional
-
     from alts.core.data_process.time_source import TimeSource
     from alts.core.data_process.time_behavior import TimeBehavior
     from alts.core.data_process.process import Process
@@ -65,7 +67,7 @@ if TYPE_CHECKING:
     from alts.core.query.query_sampler import QuerySampler
     from alts.core.experiment_modules import ExperimentModules
     from alts.core.evaluator import Evaluator
-    from alts.core.oracle.query_queue import QueryQueue
+    
 
 
 
@@ -79,7 +81,8 @@ class SbBlueprint(Blueprint):
     time_behavior: TimeBehavior = DataSourceTimeBehavior(
         data_source= TimeBehaviorDataSource(behavior=RandomTimeUniformBehavior(stop_time=stop_time))
     )
-    query_queue: QueryQueue = FCFSQueryQueue()
+
+    oracles: POracles = POracles(process=FCFSQueryQueue())
 
     process: Process = DataSourceProcess(
         data_source=BrownianDriftDataSource(reinit=True),
@@ -87,9 +90,11 @@ class SbBlueprint(Blueprint):
 
     stopping_criteria: StoppingCriteria = TimeStoppingCriteria(stop_time=stop_time)
 
-    stream_data_pool: QueriedDataPool = FlatQueriedDataPool()
-    process_data_pool: QueriedDataPool = FlatQueriedDataPool()
-    result_data_pool: QueriedDataPool = FlatQueriedDataPool()
+    data_pools: SPRDataPools = SPRDataPools(
+        stream=FlatQueriedDataPool(),
+        process=FlatQueriedDataPool(),
+        result=FlatQueriedDataPool(),
+    )
 
     initial_query_sampler: QuerySampler = StreamQuerySampler()
 

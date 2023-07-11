@@ -29,8 +29,8 @@ class PassThroughEstimator(Estimator):
 
     def estimate(self, times, queries, vars) -> NDArray[Shape["query_nr, ... result_dim"], Number]:
         estimation = np.zeros((queries.shape[0],2))
-        if self.exp_modules.result_data_pool.last_results.shape[0] > 0:
-            estimation[:,0] = self.exp_modules.result_data_pool.last_results[-1][..., None]
+        if self.exp_modules.data_pools.result.last_results.shape[0] > 0:
+            estimation[:,0] = self.exp_modules.data_pools.result.last_results[-1][..., None]
             
         return estimation
 
@@ -55,8 +55,8 @@ class GPEstimator(Estimator):
             self.kern = RBF(lengthscale=self.length_scale, input_dim=1, variance=self.variance, active_dims=[1])
 
     def train(self):
-        all_queries = self.exp_modules.result_data_pool.queries
-        all_results = self.exp_modules.result_data_pool.results
+        all_queries = self.exp_modules.data_pools.result.queries
+        all_results = self.exp_modules.data_pools.result.results
         self.gaussian_process = GPy.models.GPRegression(all_queries, all_results, self.kern, noise_var=self.noise)
         self.apply_constrains()
         self.newly_trained = True
@@ -66,7 +66,7 @@ class GPEstimator(Estimator):
                 
         if self.use_label_as_estimate and self.newly_trained:
             self.newly_trained = False
-            last_results = self.exp_modules.result_data_pool.last_results
+            last_results = self.exp_modules.data_pools.result.last_results
             estimation = last_results
             var = np.zeros((queries.shape[0],1))
             est_and_var = np.concatenate((estimation, var), axis=1)
@@ -131,9 +131,9 @@ class IntBrownGPEstimator(GPEstimator):
         super().__post_init__()
 
     def train(self):
-        all_query_results = self.exp_modules.process_data_pool.queries
-        all_queries = self.exp_modules.result_data_pool.queries
-        all_results = self.exp_modules.result_data_pool.results
+        all_query_results = self.exp_modules.data_pools.process.queries
+        all_queries = self.exp_modules.data_pools.result.queries
+        all_results = self.exp_modules.data_pools.result.results
         queries = np.concatenate((all_query_results[:,:1], all_queries), axis=1)
         queries = queries[-300:]
         all_results = all_results[-300:]

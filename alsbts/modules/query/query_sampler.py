@@ -17,6 +17,6 @@ if TYPE_CHECKING:
 class StreamQuerySampler(QuerySampler):
 
     def sample(self, num_queries: Optional[int] = None) -> NDArray[Shape["query_nr, ... query_dims"], Number]:
-        query = np.concatenate((self.exp_modules.stream_data_pool.last_queries, self.exp_modules.stream_data_pool.last_results), axis=1)
+        query = np.concatenate((self.exp_modules.data_pools.stream.last_queries, self.exp_modules.data_pools.stream.last_results), axis=1)
         return query
 

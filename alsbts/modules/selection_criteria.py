@@ -109,17 +109,18 @@ class STDPreTrainSelectionCriteria(EstimatorSelectionCriteria):
 
     def query(self, queries):
 
-        std = self.estimator.last_std
-        time = self.exp_modules.queried_data_pool.last_results[0,0]
+        queries, est_var = self.exp_modules.estimator.query(queries)
+        time = self.exp_modules.data_pools.stream.last_results[0,0]
+
+        scores = est_var[:,1:] - self.std_threshold
 
 
-        if std > self.std_threshold or time <= self.stop_train_time and time >= self.last_query_time + self.time_interval:
-            scores = np.asarray([0, 1]) #Do measure
-            self.last_query_time = time
+        if time <= self.stop_train_time and time >= self.last_query_time + self.time_interval:
+            return scores
         else:
-            scores = np.asarray([1, 0]) #Do not measure
+            return np.zeros_like(scores)
 
-        return scores
+
 
 
 @dataclass
