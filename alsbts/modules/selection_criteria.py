@@ -127,7 +127,7 @@ class ChangeSelectionCriteria(EstimatorSelectionCriteria):
     change_detector: ChangeDetector = init(default_factory=OptimalChangeDetector)
     def __post_init__(self):
         super().__post_init__()
-        self.change_detector = self.change_detector()
+        self.change_detector = self.change_detector(exp_modules=self.exp_modules)
 
     def query(self, queries):
         change = self.change_detector.detect(queries[...,1:])

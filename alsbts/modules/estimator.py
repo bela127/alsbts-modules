@@ -28,17 +28,18 @@ if TYPE_CHECKING:
 class PassThroughEstimator(Estimator):
 
     def estimate(self, times, queries, vars) -> NDArray[Shape["query_nr, ... result_dim"], Number]:
+        estimation = np.zeros((queries.shape[0],2))
         if self.exp_modules.result_data_pool.last_results.shape[0] > 0:
-            estimation = self.exp_modules.result_data_pool.last_results[-1][..., None]
-        else:
-            estimation = np.zeros((queries.shape[0],2))
+            estimation[:,0] = self.exp_modules.result_data_pool.last_results[-1][..., None]
+            
         return estimation
 
 
 @dataclass
 class GPEstimator(Estimator):
     use_label_as_estimate: bool = False
-    length_scale: float = 0.5
+    length_scale: float = 0.1
+    variance: float = 0.25
     noise:float = 0.00#1
 
     gaussian_process: GPy.models.GPRegression = pre_init(default=None)
@@ -51,7 +52,7 @@ class GPEstimator(Estimator):
     def __post_init__(self):
         super().__post_init__()
         if self.kern is None:
-            self.kern = RBF(lengthscale=self.length_scale, input_dim=1, variance=0.25, active_dims=[1])
+            self.kern = RBF(lengthscale=self.length_scale, input_dim=1, variance=self.variance, active_dims=[1])
 
     def train(self):
         all_queries = self.exp_modules.result_data_pool.queries
@@ -91,9 +92,10 @@ class GPEstimator(Estimator):
 
 @dataclass
 class BrownGPEstimator(GPEstimator):
+    brown_variance:float = 0.01
 
     def __post_init__(self):
-        self.kern = Combined(rbf_lengthscale=self.length_scale, rbf_variance=0.25, brown_variance=0.005)
+        self.kern = Combined(rbf_lengthscale=self.length_scale, rbf_variance=self.variance, brown_variance=self.brown_variance)
         super().__post_init__()
 
     def apply_constrains(self):
@@ -106,9 +108,10 @@ class BrownGPEstimator(GPEstimator):
 
 @dataclass
 class BrownGPAdaptEstimator(GPEstimator):
+    brown_variance:float = 0.01
 
     def __post_init__(self):
-        self.kern = Combined(rbf_lengthscale=self.length_scale, rbf_variance=0.25, brown_variance=0.005)
+        self.kern = Combined(rbf_lengthscale=self.length_scale, rbf_variance=self.variance, brown_variance=self.brown_variance)
         super().__post_init__()
 
     def apply_constrains(self):
@@ -121,9 +124,10 @@ class BrownGPAdaptEstimator(GPEstimator):
 
 @dataclass
 class IntBrownGPEstimator(GPEstimator):
+    brown_variance:float = 0.005
 
     def __post_init__(self):
-        self.kern = IntCombined(rbf_lengthscale=self.length_scale, rbf_variance=0.25, brown_variance=0.005)
+        self.kern = IntCombined(rbf_lengthscale=self.length_scale, rbf_variance=self.variance, brown_variance=self.brown_variance)
         super().__post_init__()
 
     def train(self):
@@ -131,6 +135,8 @@ class IntBrownGPEstimator(GPEstimator):
         all_queries = self.exp_modules.result_data_pool.queries
         all_results = self.exp_modules.result_data_pool.results
         queries = np.concatenate((all_query_results[:,:1], all_queries), axis=1)
+        queries = queries[-300:]
+        all_results = all_results[-300:]
         self.gaussian_process = GPy.models.GPRegression(queries, all_results, self.kern, noise_var=self.noise)
         self.apply_constrains()
         self.newly_trained = True
@@ -148,7 +154,7 @@ class IntBrownGPEstimator(GPEstimator):
         self.gaussian_process.Gaussian_noise.variance.fix()
         self.gaussian_process.IntCombined.rbf_variance.fix()
         self.gaussian_process.IntCombined.rbf_lengthscale.fix()
-        self.gaussian_process.IntCombined.brown_variance.fix()
+        #self.gaussian_process.IntCombined.brown_variance.fix()
         #self.gaussian_process.optimize_restarts(num_restarts=3, max_iters=1000, messages=False, ipython_notebook=False)
 
 

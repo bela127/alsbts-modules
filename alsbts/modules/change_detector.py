@@ -20,6 +20,7 @@ class NoisyChangeDetector(ChangeDetector):
     change_offset_std: float = 5
     wrong_detection_ratio: float = 0.005
     missed_detection_ratio: float = 0.025
+    time_step: float = 1 #0.05
 
     gt_change = False
     last_value = 0
@@ -39,8 +40,8 @@ class NoisyChangeDetector(ChangeDetector):
                 self.offset_steps = np.abs(np.random.normal(scale=self.change_offset_std))
             
             if self.gt_change:
-                self.offset_steps -= 1
-
+                self.offset_steps -= self.exp_modules.time_source.time_step
+                
             if self.gt_change and self.offset_steps <= 0:
                 self.gt_change = False
 

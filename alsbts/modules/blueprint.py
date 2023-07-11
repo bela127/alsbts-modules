@@ -75,7 +75,7 @@ stop_time = 1000
 class SbBlueprint(Blueprint):
     repeat: int = 1
 
-    time_source: TimeSource = IterationTimeSource()
+    time_source: TimeSource = IterationTimeSource(time_step=0.05)
     time_behavior: TimeBehavior = DataSourceTimeBehavior(
         data_source= TimeBehaviorDataSource(behavior=RandomTimeUniformBehavior(stop_time=stop_time))
     )
