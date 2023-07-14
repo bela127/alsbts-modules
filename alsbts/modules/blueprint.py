@@ -25,7 +25,7 @@ from alts.modules.data_process.time_source import IterationTimeSource
 
 from alts.core.oracle.oracles import POracles
 from alts.modules.oracle.query_queue import FCFSQueryQueue
-from alts.modules.data_process.process import DirectStreamProcess
+from alts.modules.data_process.process import DataSourceProcess
 from alts.modules.stopping_criteria import TimeStoppingCriteria
 
 
@@ -55,7 +55,6 @@ from alsbts.modules.selection_criteria import FixedIntervalSelectionCriteria
 if TYPE_CHECKING:
     from typing import Iterable, Optional
     from alts.core.data_process.time_source import TimeSource
-    from alts.core.data_process.time_behavior import TimeBehavior
     from alts.core.data_process.process import Process
     from alts.core.stopping_criteria import StoppingCriteria
     from alts.core.data_process.observable_filter import ObservableFilter
@@ -77,7 +76,7 @@ class SbBlueprint(Blueprint):
 
     oracles: POracles = POracles(process=FCFSQueryQueue())
 
-    process: Process = DirectStreamProcess(
+    process: Process = DataSourceProcess(
         stop_time=stop_time,
         data_source=BrownianDriftDataSource(reinit=True),
     )
