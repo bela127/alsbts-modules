@@ -22,11 +22,10 @@ from alts.core.blueprint import Blueprint
 from alts.modules.evaluator import PrintExpTimeEvaluator
 
 from alts.modules.data_process.time_source import IterationTimeSource
-from alts.modules.data_process.time_behavior import DataSourceTimeBehavior
 
 from alts.core.oracle.oracles import POracles
 from alts.modules.oracle.query_queue import FCFSQueryQueue
-from alts.modules.data_process.process import DataSourceProcess
+from alts.modules.data_process.process import DirectStreamProcess
 from alts.modules.stopping_criteria import TimeStoppingCriteria
 
 
@@ -44,9 +43,6 @@ from alsbts.core.experiment_modules import StreamExperiment
 from alsbts.modules.query.query_sampler import StreamQuerySampler
 from alsbts.modules.query.query_decider import EmptyQueryDecider
 
-from alsbts.modules.oracle.data_source import TimeBehaviorDataSource
-from alsbts.modules.behavior import RandomTimeUniformBehavior
-
 from alts.modules.query.query_optimizer import NoQueryOptimizer
 from alts.modules.query.query_decider import ThresholdQueryDecider
 
@@ -54,7 +50,7 @@ from alts.modules.evaluator import LogAllEvaluator, LogTVPGTEvaluator
 
 from alsbts.modules.evaluator import EstimatorEvaluator
 
-from alts.modules.query.selection_criteria import AllSelectionCriteria
+from alsbts.modules.selection_criteria import FixedIntervalSelectionCriteria
 
 if TYPE_CHECKING:
     from typing import Iterable, Optional
@@ -77,14 +73,12 @@ stop_time = 1000
 class SbBlueprint(Blueprint):
     repeat: int = 1
 
-    time_source: TimeSource = IterationTimeSource(time_step=0.05)
-    time_behavior: TimeBehavior = DataSourceTimeBehavior(
-        data_source= TimeBehaviorDataSource(behavior=RandomTimeUniformBehavior(stop_time=stop_time))
-    )
+    time_source: TimeSource = IterationTimeSource(time_step=0.5)#0.05)
 
     oracles: POracles = POracles(process=FCFSQueryQueue())
 
-    process: Process = DataSourceProcess(
+    process: Process = DirectStreamProcess(
+        stop_time=stop_time,
         data_source=BrownianDriftDataSource(reinit=True),
     )
 
@@ -100,7 +94,7 @@ class SbBlueprint(Blueprint):
 
     experiment_modules: ExperimentModules = StreamExperiment(
         query_selector=StreamQuerySelector(
-            query_optimizer=NoQueryOptimizer(query_sampler=StreamQuerySampler(), selection_criteria=AllSelectionCriteria()),
+            query_optimizer=NoQueryOptimizer(query_sampler=StreamQuerySampler(), selection_criteria=FixedIntervalSelectionCriteria(time_interval=3)),
             query_decider=ThresholdQueryDecider(threshold=0.0),
             ),
         estimator=PassThroughEstimator(),
