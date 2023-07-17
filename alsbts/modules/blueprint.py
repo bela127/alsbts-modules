@@ -10,7 +10,6 @@ from alts.modules.data_process.time_source import IterationTimeSource
 from alts.modules.oracle.query_queue import FCFSQueryQueue
 from alts.modules.stopping_criteria import TimeStoppingCriteria
 from alts.modules.data_process.observable_filter import NoObservableFilter
-from alts.modules.queried_data_pool import FlatQueriedDataPool
 from alts.core.experiment_modules import ExperimentModules
 from alts.modules.query.query_optimizer import NoQueryOptimizer
 from alts.modules.evaluator import PrintExpTimeEvaluator
