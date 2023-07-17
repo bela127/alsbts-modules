@@ -22,7 +22,7 @@ from alts.modules.evaluator import PrintExpTimeEvaluator
 
 from alts.modules.data_process.time_source import IterationTimeSource
 
-from alts.core.oracle.oracles import POracles
+from alts.core.oracle.oracles import POracles, Oracles
 from alts.modules.oracle.query_queue import FCFSQueryQueue
 from alts.modules.data_process.process import DelayedStreamProcess
 from alts.modules.stopping_criteria import TimeStoppingCriteria
@@ -58,7 +58,6 @@ if TYPE_CHECKING:
     from alts.core.stopping_criteria import StoppingCriteria
     from alts.core.data_process.observable_filter import ObservableFilter
     from alts.core.data.queried_data_pool import QueriedDataPool
-    from alts.core.query.query_sampler import QuerySampler
     from alts.core.experiment_modules import ExperimentModules
     from alts.core.evaluator import Evaluator
     
@@ -73,7 +72,7 @@ class SbBlueprint(Blueprint):
 
     time_source: TimeSource = IterationTimeSource(time_step=0.5)#0.05)
 
-    oracles: POracles = POracles(process=FCFSQueryQueue())
+    oracles: Oracles = POracles(process=FCFSQueryQueue())
 
     process: Process = DelayedStreamProcess(
         stop_time=stop_time,
@@ -87,8 +86,6 @@ class SbBlueprint(Blueprint):
         process=FlatQueriedDataPool(),
         result=FlatQueriedDataPool(),
     )
-
-    initial_query_sampler: QuerySampler = StreamQuerySampler()
 
     experiment_modules: ExperimentModules = StreamExperiment(
         query_selector=StreamQuerySelector(
