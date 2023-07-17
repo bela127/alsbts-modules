@@ -25,7 +25,7 @@ from alts.modules.data_process.time_source import IterationTimeSource
 
 from alts.core.oracle.oracles import POracles
 from alts.modules.oracle.query_queue import FCFSQueryQueue
-from alts.modules.data_process.process import DataSourceProcess
+from alts.modules.data_process.process import DelayedStreamProcess
 from alts.modules.stopping_criteria import TimeStoppingCriteria
 
 
@@ -76,7 +76,7 @@ class SbBlueprint(Blueprint):
 
     oracles: POracles = POracles(process=FCFSQueryQueue())
 
-    process: Process = DataSourceProcess(
+    process: Process = DelayedStreamProcess(
         stop_time=stop_time,
         data_source=BrownianDriftDataSource(reinit=True),
     )
