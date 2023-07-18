@@ -13,7 +13,7 @@ from alts.core.experiment_modules import ExperimentModules
 from alts.modules.query.query_optimizer import NoQueryOptimizer
 from alts.modules.evaluator import PrintExpTimeEvaluator
 
-from alts.core.data.data_pools import SPRDataPools
+from alts.core.data.data_pools import SPRDataPools, DataPools
 from alts.modules.queried_data_pool import FlatQueriedDataPool
 from alts.modules.query.query_sampler import FixedQuerySampler
 from alts.core.blueprint import Blueprint
@@ -49,12 +49,10 @@ from alsbts.modules.evaluator import EstimatorEvaluator
 from alsbts.modules.selection_criteria import FixedIntervalSelectionCriteria
 
 if TYPE_CHECKING:
-    from typing import Iterable, Optional
+    from typing import Iterable
     from alts.core.data_process.time_source import TimeSource
     from alts.core.data_process.process import Process
     from alts.core.stopping_criteria import StoppingCriteria
-    from alts.core.data_process.observable_filter import ObservableFilter
-    from alts.core.data.queried_data_pool import QueriedDataPool
     from alts.core.experiment_modules import ExperimentModules
     from alts.core.evaluator import Evaluator
     
@@ -78,7 +76,7 @@ class SbBlueprint(Blueprint):
 
     stopping_criteria: StoppingCriteria = TimeStoppingCriteria(stop_time=stop_time)
 
-    data_pools: SPRDataPools = SPRDataPools(
+    data_pools: DataPools = SPRDataPools(
         stream=FlatQueriedDataPool(),
         process=FlatQueriedDataPool(),
         result=FlatQueriedDataPool(),
