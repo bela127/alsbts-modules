@@ -9,7 +9,6 @@ from alts.core.blueprint import Blueprint
 from alts.modules.data_process.time_source import IterationTimeSource
 from alts.modules.oracle.query_queue import FCFSQueryQueue
 from alts.modules.stopping_criteria import TimeStoppingCriteria
-from alts.modules.data_process.observable_filter import NoObservableFilter
 from alts.core.experiment_modules import ExperimentModules
 from alts.modules.query.query_optimizer import NoQueryOptimizer
 from alts.modules.evaluator import PrintExpTimeEvaluator
@@ -29,8 +28,6 @@ from alts.modules.stopping_criteria import TimeStoppingCriteria
 
 
 from alts.modules.oracle.data_source import BrownianDriftDataSource
-
-from alts.modules.data_process.observable_filter import NoObservableFilter
 
 
 from alsbts.modules.estimator import PassThroughEstimator
