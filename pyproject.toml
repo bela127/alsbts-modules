@@ -15,7 +15,7 @@ alsbts-core = {git = "https://github.com/bela127/alsbts-core.git"}
 #alts-modules = { path = "/home/bela/Cloud/code/Git/alts-modules", develop = true }
 alts-modules = {git = "https://github.com/bela127/alts-modules.git"}
 paramz = {git = "https://github.com/bela127/paramz.git"}
-GPy = {git = "https://github.com/bela127/GPy.git"}
+GPy = {git = "https://github.com/SheffieldML/GPy"}
 
 [tool.poetry.dev-dependencies]
 pytest = "^6.2.5"
