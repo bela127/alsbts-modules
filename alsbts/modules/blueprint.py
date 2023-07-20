@@ -31,13 +31,12 @@ from alts.modules.oracle.data_source import BrownianDriftDataSource
 
 
 from alsbts.modules.estimator import PassThroughEstimator
-from alsbts.modules.query.query_selector import StreamQuerySelector
+from alts.core.query.query_selector import StreamQuerySelector
 
 from alts.modules.evaluator import LogOracleEvaluator
 
 from alsbts.core.experiment_modules import StreamExperiment
 from alsbts.modules.query.query_sampler import StreamQuerySampler
-from alsbts.modules.query.query_decider import EmptyQueryDecider
 
 from alts.modules.query.query_optimizer import NoQueryOptimizer
 from alts.modules.query.query_decider import ThresholdQueryDecider
