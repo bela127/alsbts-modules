@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 from dataclasses import dataclass, field
 
 import numpy as np
-from alts.core.query.query_pool import QueryPool
+from alts.core.data.constrains import QueryConstrain
 
 from alts.core.configuration import init, pre_init, post_init
 from alts.core.query.selection_criteria import SelectionCriteria
@@ -23,22 +23,13 @@ if TYPE_CHECKING:
 class EstimatorSelectionCriteria(SelectionCriteria):
     exp_modules: StreamExperiment = post_init()
 
-    def __post_init__(self):
-        super().__post_init__()
-
-    @property
-    def query_pool(self) -> QueryPool:
-        query_pool = self.exp_modules.oracle_data_pool.copy()
-        
-        def all_queries():
-            queries = self.exp_modules.oracle_data_pool.all_queries()
-            vs_estimate = self.estimator.estimate()
-            queries = queries.copy()
-            queries[:,0] = vs_estimate
-            return queries
-        
-        query_pool.all_queries = all_queries
-        return query_pool
+    def query_constrain(self) -> QueryConstrain:
+        qconst = self.exp_modules.oracles.process.query_constrain()
+        queries = self.exp_modules.data_pools.results.queries
+        queries = queries.copy()
+        vs_estimate = self.exp_modules.estimator.estimate()
+        queries[:,0] = vs_estimate
+        return QueryConstrain(count=queries.shape[0], shape=qconst.shape, ranges=queries)
 
 
 @dataclass
@@ -126,8 +117,8 @@ class STDPreTrainSelectionCriteria(EstimatorSelectionCriteria):
 @dataclass
 class ChangeSelectionCriteria(EstimatorSelectionCriteria):
     change_detector: ChangeDetector = init(default_factory=OptimalChangeDetector)
-    def __post_init__(self):
-        super().__post_init__()
+    def post_init(self):
+        super().post_init()
         self.change_detector = self.change_detector(exp_modules=self.exp_modules)
 
     def query(self, queries):

@@ -24,7 +24,6 @@ from mpl_toolkits.mplot3d import Axes3D
 if TYPE_CHECKING:
     from nptyping import  NDArray, Number, Shape
 
-@dataclass
 class PassThroughEstimator(Estimator):
 
     def estimate(self, times, queries, vars) -> NDArray[Shape["query_nr, ... result_dim"], Number]:
@@ -37,10 +36,10 @@ class PassThroughEstimator(Estimator):
 
 @dataclass
 class GPEstimator(Estimator):
-    use_label_as_estimate: bool = False
-    length_scale: float = 0.1
-    variance: float = 0.25
-    noise:float = 0.00#1
+    use_label_as_estimate: bool = init(default=False)
+    length_scale: float = init(default=0.1)
+    variance: float = init(default=0.25)
+    noise:float = init(default=0.00)#1
 
     gaussian_process: GPy.models.GPRegression = pre_init(default=None)
 
@@ -49,8 +48,8 @@ class GPEstimator(Estimator):
     kern: GPy.kern.Kern = init(default=None)
 
 
-    def __post_init__(self):
-        super().__post_init__()
+    def post_init(self):
+        super().post_init()
         if self.kern is None:
             self.kern = RBF(lengthscale=self.length_scale, input_dim=1, variance=self.variance, active_dims=[1])
 
@@ -92,11 +91,11 @@ class GPEstimator(Estimator):
 
 @dataclass
 class BrownGPEstimator(GPEstimator):
-    brown_variance:float = 0.01
+    brown_variance:float = init(default=0.01)
 
-    def __post_init__(self):
+    def post_init(self):
         self.kern = Combined(rbf_lengthscale=self.length_scale, rbf_variance=self.variance, brown_variance=self.brown_variance)
-        super().__post_init__()
+        super().post_init()
 
     def apply_constrains(self):
         self.gaussian_process.Gaussian_noise.variance.fix()
@@ -108,11 +107,11 @@ class BrownGPEstimator(GPEstimator):
 
 @dataclass
 class BrownGPAdaptEstimator(GPEstimator):
-    brown_variance:float = 0.01
+    brown_variance:float = init(default=0.01)
 
-    def __post_init__(self):
+    def post_init(self):
         self.kern = Combined(rbf_lengthscale=self.length_scale, rbf_variance=self.variance, brown_variance=self.brown_variance)
-        super().__post_init__()
+        super().post_init()
 
     def apply_constrains(self):
         self.gaussian_process.Gaussian_noise.variance.fix()
@@ -124,11 +123,11 @@ class BrownGPAdaptEstimator(GPEstimator):
 
 @dataclass
 class IntBrownGPEstimator(GPEstimator):
-    brown_variance:float = 0.005
+    brown_variance:float = init(default=0.005)
 
-    def __post_init__(self):
+    def post_init(self):
         self.kern = IntCombined(rbf_lengthscale=self.length_scale, rbf_variance=self.variance, brown_variance=self.brown_variance)
-        super().__post_init__()
+        super().post_init()
 
     def train(self):
         all_query_results = self.exp_modules.data_pools.process.queries

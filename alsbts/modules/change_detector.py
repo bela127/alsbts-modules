@@ -3,7 +3,7 @@ from typing import Literal, Union
 
 import numpy as np
 
-from alts.core.configuration import pre_init
+from alts.core.configuration import pre_init, init
 from alsbts.core.change_detector import ChangeDetector
 
 @dataclass
@@ -17,16 +17,17 @@ class OptimalChangeDetector(ChangeDetector):
 
 @dataclass
 class NoisyChangeDetector(ChangeDetector):
-    change_offset_std: float = 5
-    wrong_detection_ratio: float = 0.005
-    missed_detection_ratio: float = 0.025
+    change_offset_std: float = init(default=5)
+    wrong_detection_ratio: float = init(default=0.005)
+    missed_detection_ratio: float = init(default=0.025)
 
-    gt_change = False
-    last_value = 0
-    offset_steps = 0
+    gt_change: bool = pre_init(default= False)
+    last_value: float = pre_init(default= 0)
+    offset_steps: float = pre_init(default= 0)
     
 
-    def __post_init__(self):
+    def post_init(self):
+        super().post_init()
         self._change_kinds = []
 
     def detect(self, changing_signal):

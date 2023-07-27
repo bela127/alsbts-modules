@@ -18,8 +18,8 @@ if TYPE_CHECKING:
 class EmptyQueryDecider(QueryDecider):
     query_decider: QueryDecider = init()
 
-    def __post_init__(self):
-        super().__post_init__()
+    def post_init(self):
+        super().post_init()
         self.query_decider = self.query_decider(exp_modules = self.exp_modules)
 
     def decide(self, query_candidates: NDArray[Shape["query_nr, ... query_dims"], Number], scores: NDArray[Shape["query_nr, [query_score]"], Number]) -> Tuple[bool, NDArray[Shape["query_nr, []"], Number]]:

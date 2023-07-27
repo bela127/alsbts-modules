@@ -5,9 +5,7 @@ from dataclasses import dataclass, field
 
 import numpy as np
 
-from alts.core.data.data_pool import DataPool
 from alts.core.oracle.data_source import DataSource
-from alts.core.query.query_pool import QueryPool
 
 if TYPE_CHECKING:
     from typing import Tuple, List, Any
@@ -28,7 +26,8 @@ class TimeDependentDataSource(DataSource):
 
     last_time = 0
 
-    def __post_init__(self):
+    def post_init(self):
+        super().post_init()
         self.data_source = self.data_source()
         self.query_shape: Tuple[int,...] = self.data_source.query_shape
         self.result_shape: Tuple[int,...] = self.data_source.result_shape
@@ -43,10 +42,6 @@ class TimeDependentDataSource(DataSource):
         queries, results = self.data_source.query(queries)
         return queries, results
 
-    @property
-    def query_pool(self) -> QueryPool:
-        return self.data_source.query_pool
-    
     @property
     def exhausted(self):
         return self.last_time >= self.end_time

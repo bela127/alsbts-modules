@@ -32,7 +32,8 @@ class NoisyGaussianRVSEstimator(RVSEstimator):
     gt_vss = np.empty((0,1))
     last_vs = 0
 
-    def __post_init__(self):
+    def post_init(self):
+        super().post_init()
         self._change_time = []
         self.gaussian_process = GaussianProcessRegressor(kernel=RBF(length_scale= self.length_scale, length_scale_bounds='fixed'), random_state=None)
 
