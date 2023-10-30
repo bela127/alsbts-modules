@@ -24,7 +24,9 @@ from mpl_toolkits.mplot3d import Axes3D
 if TYPE_CHECKING:
     from nptyping import  NDArray, Number, Shape
 
+@dataclass
 class PassThroughEstimator(Estimator):
+
 
     def estimate(self, times, queries, vars) -> NDArray[Shape["query_nr, ... result_dim"], Number]:
         estimation = np.zeros((queries.shape[0],2))
@@ -53,7 +55,7 @@ class GPEstimator(Estimator):
         if self.kern is None:
             self.kern = RBF(lengthscale=self.length_scale, input_dim=1, variance=self.variance, active_dims=[1])
 
-    def train(self):
+    def train(self, result_pool):
         all_queries = self.exp_modules.data_pools.result.queries
         all_results = self.exp_modules.data_pools.result.results
         self.gaussian_process = GPy.models.GPRegression(all_queries, all_results, self.kern, noise_var=self.noise)
@@ -129,7 +131,7 @@ class IntBrownGPEstimator(GPEstimator):
         self.kern = IntCombined(rbf_lengthscale=self.length_scale, rbf_variance=self.variance, brown_variance=self.brown_variance)
         super().post_init()
 
-    def train(self):
+    def train(self, result_pool):
         all_query_results = self.exp_modules.data_pools.process.queries
         all_queries = self.exp_modules.data_pools.result.queries
         all_results = self.exp_modules.data_pools.result.results
@@ -377,21 +379,24 @@ class IntegralBrown(Kern):
 
 
     def K(self, X, X2=None):
-        """Note: We have a latent function and an output function. We want to be able to find:
-          - the covariance between values of the output function
-          - the covariance between values of the latent function
-          - the "cross covariance" between values of the output function and the latent function
-        This method is used by GPy to either get the covariance between the outputs (K_xx) or
-        is used to get the cross covariance (between the latent function and the outputs (K_xf).
+        """Note: We have a LATENT FUNCTION and an OUTPUT FUNCTION. We want to be able to find:
+          - the covariance between values of the OUTPUT FUNCTION K_{ff}
+          - the covariance between values of the LATENT FUNCTION K_{FF}
+          - the "cross covariance" between values of the OUTPUT FUNCTION and the LATENT FUNCTION K_{fF} and K_{Ff}
+        This is required to calculate the inference variance:
+        $K_{ff}^{post} = K_{ff} - K_{fF} K_{FF}^{-1} K_{Ff}$
+
+        This method is used by GPy to either get the covariance between the LATENT FUNCTION (K_FF) or
+        is used to get the cross covariance (between the LATENT FUNCTION and the LATENT FUNCTION (K_Ff).
         We take advantage of the places where this function is used:
          - if X2 is none, then we know that the items being compared (to get the covariance for)
-         are going to be both from the OUTPUT FUNCTION.
+         are going to be both from the LATENT FUNCTION (K_FF).
          - if X2 is not none, then we know that the items being compared are from two different
          sets (the OUTPUT FUNCTION and the LATENT FUNCTION).
         
-        If we want the covariance between values of the LATENT FUNCTION, we take advantage of
+        If we want the covariance between values of the OUTPUT FUNCTION, we take advantage of
         the fact that we only need that when we do prediction, and this only calls Kdiag (not K).
-        So the covariance between LATENT FUNCTIONS is available from Kdiag.        
+        So the covariance between OUTPUT FUNCTION (K_ff) is available from Kdiag, which referes to the standart brownean kernel.        
         """
         if X2 is None:
             K_FF = np.zeros([X.shape[0],X.shape[0]])
@@ -412,7 +417,7 @@ class IntegralBrown(Kern):
         """I've used the fact that we call this method during prediction (instead of K). When we
         do prediction we want to know the covariance between LATENT FUNCTIONS (K_ff) (as that's probably
         what the user wants).
-        $K_{ff}^{post} = K_{ff} - K_{fx} K_{xx}^{-1} K_{xf}$"""
+        K_{ff}^{post} = K_{ff} - K_{fF} K_{FF}^{-1} K_{Ff}"""
         K_ff = np.zeros(X.shape[0])
         for i,x in enumerate(X):
             K_ff[i] = self.k_ff(x[1],x[1])
