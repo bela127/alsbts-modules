@@ -1,58 +1,62 @@
+## Installation:
 
+install pyenv dependencies:
 
-#### Install package via poetry
+```bash
+sudo apt update
+sudo apt install -y make build-essential libssl-dev zlib1g-dev libbz2-dev \
+libreadline-dev libsqlite3-dev wget curl llvm libncurses5-dev libncursesw5-dev \
+xz-utils tk-dev libffi-dev liblzma-dev python-openssl git
+```
 
-The following creates a venv, and installs all dependencies but matlab
+install pyenv:
 
-'''
+```bash
+curl -L https://github.com/pyenv/pyenv-installer/raw/master/bin/pyenv-installer | bash
+```
+
+add it to bash, by adding the following to the bottom of the file  `~/.bashrc`:
+
+```bash
+export PATH="/home/user/.pyenv/bin:$PATH"
+eval "$(pyenv init -)"
+eval "$(pyenv virtualenv-init -)"
+```
+
+install python version:
+
+```bash
+pyenv install 3.9.6
+```
+
+install poetry:
+
+```bash
+curl -sSL https://install.python-poetry.org | python3 -
+```
+
+add it to bash, by adding the following to the bottom of the file  `~/.bashrc`:
+
+```bash
+export PATH="/home/i40/boehnkeb/.local/bin:$PATH"
+```
+
+set poetry to use pyenv:
+
+```bash
+poetry config virtualenvs.prefer-active-python true
+```
+
+And make sure venv are created inside a project:
+
+```bash
+poetry config virtualenvs.in-project true
+```
+
+install project dependencies:
+
+```bash
 poetry install
-'''
+```
 
-then start the created venv:
-'''
-source ./.venv/bin/activate
-'''
-
-
-#### Install matlab
-
-Under Linux:
-you need to change the default path during the matlab installation to a path in your user home dir:
-"/home/$USER/MATLAB/R2021b"
-
-#### Verify Your Configuration
-
-Before you install, verify your Python and MATLAB configurations.
-
-    Check that your system has a supported version of Python and MATLAB R2014b or later. For more information, see Versions of Python Compatible with MATLAB Products by Release .
-
-    To check that Python is installed on your system, run Python at the operating system prompt.
-
-    Add the folder that contains the Python interpreter to your path, if it is not already there.
-
-    Find the path to the MATLAB folder. Start MATLAB and type matlabroot in the command window. Copy the path returned by matlabroot.
-
-#### Install the Engine API
-
-To install the engine API, choose one of the following. You must call this python install command in the specified folder.
-
-    At a Windows operating system prompt (you might need administrator privileges to execute these commands) —
-
-    '''
-    cd "$matlabroot\extern\engines\python"
-    python setup.py install
-    '''
-
-    At a macOS or Linux operating system prompt (you might need administrator privileges to execute these commands) —
-
-    '''
-    cd "$matlabroot/extern/engines/python"
-    python setup.py install
-    '''
-
-    or
-
-    '''
-    cd "$matlabroot/extern/engines/python"
-    pip install -e ./
-    '''
+wait for all dependencies to install.
