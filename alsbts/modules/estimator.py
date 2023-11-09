@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING
 
 from dataclasses import dataclass
 
-from alsbts.core.estimator import Estimator
+from alsbts.core.estimator import SBEstimator
 from alts.core.configuration import pre_init, post_init, init
 import numpy as np
 
@@ -25,10 +25,10 @@ if TYPE_CHECKING:
     from nptyping import  NDArray, Number, Shape
 
 @dataclass
-class PassThroughEstimator(Estimator):
+class PassThroughEstimator(SBEstimator):
 
 
-    def estimate(self, times, queries, vars) -> NDArray[Shape["query_nr, ... result_dim"], Number]:
+    def sb_estimate(self, times, queries, vars) -> NDArray[Shape["query_nr, ... result_dim"], Number]:
         estimation = np.zeros((queries.shape[0],2))
         if self.exp_modules.data_pools.result.last_results.shape[0] > 0:
             estimation[:,0] = self.exp_modules.data_pools.result.last_results[-1][..., None]
@@ -37,7 +37,7 @@ class PassThroughEstimator(Estimator):
 
 
 @dataclass
-class GPEstimator(Estimator):
+class GPEstimator(SBEstimator):
     use_label_as_estimate: bool = init(default=False)
     length_scale: float = init(default=0.1)
     variance: float = init(default=0.25)
@@ -63,7 +63,7 @@ class GPEstimator(Estimator):
         self.newly_trained = True
         
 
-    def estimate(self, times, queries, vars) -> NDArray[Shape["query_nr, ... result_dim"], Number]:
+    def sb_estimate(self, times, queries, vars) -> NDArray[Shape["query_nr, ... result_dim"], Number]:
                 
         if self.use_label_as_estimate and self.newly_trained:
             self.newly_trained = False
