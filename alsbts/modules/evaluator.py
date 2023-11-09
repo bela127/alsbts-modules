@@ -28,8 +28,8 @@ class EstimatorEvaluator(LogingEvaluator):
         if not isinstance(self.experiment.experiment_modules, StreamExperiment):
             raise ValueError("for this evaluator the Process needs to be a DataSourceProcess")
 
-        self.experiment.experiment_modules.estimator.estimate = Evaluate(self.experiment.experiment_modules.estimator.estimate)
-        self.experiment.experiment_modules.estimator.estimate.post(self.save_estimation)
+        self.experiment.experiment_modules.estimator.sb_estimate = Evaluate(self.experiment.experiment_modules.estimator.sb_estimate)
+        self.experiment.experiment_modules.estimator.sb_estimate.post(self.save_estimation)
 
         self.experiment.run = Evaluate(self.experiment.run)
         self.experiment.run.post(self.log_data)
